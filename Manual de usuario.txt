@@ -1,0 +1,14 @@
+Mea Providere
+     Controlador de Prestamos
+Creado por :
+	Adrian Soto
+	Marco Soto
+	Samantha Arburola
+Acceda a nuestro manual en
+http://samarburola.wix.com/meaprovidere
+
+Observación:
+    Si se utiliza la red del ITCR por restricciones de la misma
+ no permite enviar los correos electrónicos, más de cualquier
+ red Kolbi Móvil o de Hogar si lo permite por lo que habría
+ que "des-comeentar las líneas de Código"
