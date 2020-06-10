@@ -1,0 +1,399 @@
+package Administradores;
+// Importar Librerías y Clases
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+
+import Estructuras.Articulo;
+import Estructuras.Libro;
+import Estructuras.Otro;
+import Estructuras.Pelicula;
+import Estructuras.Prestamo;
+import GUI.ventanaPrincipal;
+import Interfaces.IConstantes;
+/**
+ * Clase administradorConsulta
+ * 	Administra las consultas que puede realizar 
+ * 	el usuario en sus préstamos
+ *
+ * @author Samantha Arburola
+ *
+ */
+public class administradorConsulta implements IConstantes
+{
+	/**
+	 * Crea una lista de todos los artículos
+	 */
+	private ArrayList<Articulo> ListaArticulosTemp = new ArrayList<Articulo>();
+	/**
+	 * Crea uns lista de artículos Prestados
+	 */
+	private ArrayList<Prestamo> ListaPrestamosTemp = new ArrayList<Prestamo>();
+
+	// Constructor
+	public administradorConsulta()
+	{
+		
+	}
+	
+	
+	// Ordenamientos //
+	/**
+	 * Ordena los artículos por orden alfabético del nombre
+	 * @param pListaCategorias lista de todos los artículos
+	 */
+	public void ordenarArticulosPorNombre(ArrayList<Articulo> pListaCategorias)
+	{
+		
+			Collections.sort(pListaCategorias, new Comparator<Articulo>() 
+					{
+				        public int compare(Articulo  pArticulo1, Articulo  pArticulo2)
+				        {
+
+				            return  pArticulo1.getNombre().compareTo(pArticulo2.getNombre());
+				        }
+				    });
+	}
+	
+
+	/**
+	 * Ordena los artículos por orden ascendente de la cantidad de préstamos
+	 * @param pListaCategorias Lista de categorías
+	 */
+	public void ordenarArticulosPorCantPrestamos(ArrayList<Articulo> pListaCategorias)
+	{
+		
+			Collections.sort(pListaCategorias, new Comparator<Articulo>() 
+					{
+				        public int compare(Articulo  pArticulo1, Articulo  pArticulo2)
+				        {
+				            return new Integer(pArticulo2.getCantPrestamos()).compareTo(new Integer(pArticulo1.getCantPrestamos()));
+				        }
+				    });
+	}
+	
+	
+	/**
+	 * Ordenar los artículos prestados por orden alfabético de los nombres
+	 * @param pListaPrestamos Lista de artículos prestados
+	 */
+	public void ordenarPrestamosPorNombre(ArrayList<Prestamo> pListaPrestamos)
+	{
+		
+		Collections.sort(pListaPrestamos, new Comparator<Prestamo>() 
+				{
+			        public int compare(Prestamo  pPrestamo1, Prestamo  pPrestamo2)
+			        {
+
+			            return  pPrestamo1.getMiPersona().getNombre().compareTo(pPrestamo2.getMiPersona().getNombre());
+			        }
+			    });
+	}
+	
+	// Filtros //
+	/**
+	 * Filtrar la consulta de artículos por la categoría libros
+	 * @param pTitulo		título del libro
+	 * @param pAutor		autor del libro
+	 * @param pEditorial	editoria del libro
+	 * @param pCategoria	categoría del libro
+	 */
+	public void aplicarFiltroLibros(String pTitulo, String pAutor, String pEditorial, int pCategoria )
+	{
+		for(int i = 0;i < administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).size(); i++)
+		{
+			Libro temp = (Libro)administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).get(i);
+			if(!pTitulo.isEmpty())
+			{
+				if(!like(temp.getNombre(),pTitulo+"%"))
+				{
+					temp = null;
+				}
+			}
+			if(!pAutor.isEmpty() && temp!=null)
+			{
+				if(!like(temp.getAutor(),pAutor+"%"))
+				{
+					temp = null;
+				}
+			}
+			if(!pEditorial.isEmpty() && temp!=null)
+			{
+				if(!like(temp.geteditorial(),pEditorial+"%"))
+				{
+					temp = null;
+				}
+			}
+			if(temp != null)
+			{
+				ListaArticulosTemp.add(temp);
+			}
+		}
+	}
+	
+	/**
+	 * Filtrar la consulta de artículos por la categoría películas
+	 * @param pNombre		nombre de la película
+	 * @param pDirector		director de la película
+	 * @param pCategoria	categoría de la película
+	 */
+	public void aplicarFiltroPeliculas(String pNombre, String pDirector,int pCategoria)
+	{
+		for(int i = 0;i < administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).size(); i++)
+		{
+			Pelicula temp = (Pelicula)administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).get(i);
+			if(!pNombre.isEmpty())
+			{
+				if(!like(temp.getNombre(),pNombre+"%"))
+				{
+					temp = null;
+				}
+			}
+			if(!pDirector.isEmpty() && temp!=null)
+			{
+				if(!like(temp.getDirector(),pDirector+"%"))
+				{
+					temp = null;
+				}
+			}
+			if(temp != null)
+			{
+				ListaArticulosTemp.add(temp);
+			}
+		}
+	}
+	
+	/**
+	 * Filtrar la consulta de artículos por la categoría agregada
+	 * @param pNombre		nombre del artículo
+	 * @param pCategoria	categoría del artículo
+	 */
+	public void aplicarFiltroOtros(String pNombre,int pCategoria)
+	{
+		for(int i = 0;i < administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).size(); i++)
+		{
+			Otro temp = (Otro)administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).get(i);
+			if(!pNombre.isEmpty())
+			{
+				if(!like(temp.getNombre(),pNombre+"%"))
+				{
+					temp = null;
+				}
+			}
+			if(temp != null)
+			{
+				ListaArticulosTemp.add(temp);
+			}
+		}
+	}
+	
+	/**
+	 * Filtrar la consulta de artículos por los que se encuentran prestados
+	 * @param pNombrePersona  nombre de la persona que tiene el artículo como prestamo
+	 * @param pCategoria	  categoría del artículo
+	 */
+	public void aplicaFiltroPrestamos(String pNombrePersona,int pCategoria)
+	{
+		for (int i = 0;i < administradorAplicacion.getInstance().getMiListaPrestamos().get(pCategoria).size();i++)
+		{
+			Prestamo Temp = administradorAplicacion.getInstance().getMiListaPrestamos().get(pCategoria).get(i);
+			if(!pNombrePersona.isEmpty())
+			{
+				if(!like(Temp.getMiPersona().getNombre(),pNombrePersona+"%"))
+				{
+					Temp = null;
+				}
+			}
+			if(Temp != null)
+			{
+				ListaPrestamosTemp.add(Temp);
+			}
+		}
+		
+	}
+	
+	
+	
+	// Consultas //
+	/**
+	 * Consultar los prestamos respecto a un número de prestamos
+	 * @param pCategoria	categoría de los artículos por consultar
+	 * @param pLimit		cantidad top de artículos
+	 */
+	private void consultaTop(int pCategoria, int pLimit)
+	{
+		ordenarArticulosPorCantPrestamos(administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria));
+		for (int i = 0;i < pLimit ;i++)
+		{
+			if(i < administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).size())
+			{
+				ListaArticulosTemp.add(administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).get(i));
+			}
+		}
+		ventanaPrincipal.getInstance().limpiarPanelConsulta();
+		ventanaPrincipal.getInstance().mostrarConsultaArticulos(ListaArticulosTemp, pCategoria,0);
+		ListaArticulosTemp = null;
+		ListaArticulosTemp = new ArrayList<Articulo>();
+	}
+	
+	/**
+	 * Consulta todos los artículos existentes y los presenta en ordn alfabético
+	 * @param pCategoria	categoría de los artículos
+	 * @param pTitulo		título del artículo
+	 * @param pAutor		autor de la obra
+	 * @param pEditorial	editorial en caso de literatura
+	 * @param pConsulta		consulta cantidad de artículos a consultar
+	 */
+	private void consultaTodosLosArticulos(int pCategoria,String pTitulo,String pAutor,String pEditorial, int pConsulta)
+	{
+		if(pCategoria == 0 || pCategoria == 1)
+		{
+			aplicarFiltroLibros(pTitulo, pAutor, pEditorial, pCategoria);
+			ordenarArticulosPorNombre(ListaArticulosTemp);
+		}
+		if(pCategoria == 2)
+		{
+			aplicarFiltroPeliculas(pTitulo, pAutor, pCategoria);
+			ordenarArticulosPorNombre(ListaArticulosTemp);
+		}
+		if(pCategoria > 2)
+		{
+			aplicarFiltroOtros(pTitulo, pCategoria);
+			ordenarArticulosPorNombre(ListaArticulosTemp);
+		}
+		ventanaPrincipal.getInstance().limpiarPanelConsulta();
+		ventanaPrincipal.getInstance().mostrarCantArticulos(0, administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).size(), pConsulta);
+		ventanaPrincipal.getInstance().mostrarConsultaArticulos(ListaArticulosTemp, pCategoria,270);
+		ListaArticulosTemp = null;
+		ListaArticulosTemp = new ArrayList<Articulo>();
+	}
+	
+	/**
+	 * Consulta flexible para que el usuario consulte según su gusto
+	 * @param pCategoria	 categoría a consultar
+	 * @param pCantPrestamos cantidad de artículos 
+	 * @param pDesde		 inicio del lapso de tiempo
+	 * @param pHasta		 final del lapso de tiempo
+	 */
+	private void consultaPersonalizada(int pCategoria,int pCantPrestamos, Date pDesde, Date pHasta)
+	{
+		ordenarArticulosPorNombre(administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria));
+		for (int i = 0;i < administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).size() ;i++)
+		{
+			if(pCantPrestamos <= administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).get(i).getCantPresAcumuladosEnRangoMeses(pDesde.getMonth(), pHasta.getMonth()))
+			{
+				ListaArticulosTemp.add(administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).get(i));
+			}
+		}
+		ventanaPrincipal.getInstance().limpiarPanelConsulta();
+		ventanaPrincipal.getInstance().mostrarConsultaArticulos(ListaArticulosTemp, pCategoria,0);
+		ListaArticulosTemp = null;
+		ListaArticulosTemp = new ArrayList<Articulo>();
+	}
+	
+	/**
+	 * Consulta los artículos prestados actualmente
+	 * @param pCategoria	 categoría por consultar
+	 * @param pNombrePersona nombre de a quien se lo prestaron
+	 * @param pConsulta		 cantidad de consultas
+	 */
+	private void consultaPrestados(int pCategoria,String pNombrePersona, int pConsulta)
+	{
+		aplicaFiltroPrestamos(pNombrePersona, pCategoria);
+		ordenarPrestamosPorNombre(ListaPrestamosTemp);
+		ventanaPrincipal.getInstance().limpiarPanelConsulta();
+		ventanaPrincipal.getInstance().mostrarCantArticulos(0, ListaPrestamosTemp.size(), pConsulta);
+		ventanaPrincipal.getInstance().mostrarConsultaPrestamos(ListaPrestamosTemp,pCategoria,270);
+		ListaPrestamosTemp = null;
+		ListaPrestamosTemp = new ArrayList<Prestamo>();
+	}
+	
+	/**
+	 * Consulta de los no prestados
+	 * @param pCategoria categoría por consultar
+	 * @param pConsulta  cantidad de consultas
+	 */
+	private void consultaNoPrestados(int pCategoria, int pConsulta)
+	{
+		ordenarArticulosPorNombre(administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria));
+		for (int i = 0;i < administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).size() ;i++)
+		{
+			if(!administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).get(i).isPrestado())
+			{
+				ListaArticulosTemp.add(administradorAplicacion.getInstance().getMiListaCategorias().get(pCategoria).get(i));
+			}
+		}
+		ventanaPrincipal.getInstance().limpiarPanelConsulta();
+		ventanaPrincipal.getInstance().mostrarCantArticulos(0, ListaArticulosTemp.size(), pConsulta);
+		ventanaPrincipal.getInstance().mostrarConsultaArticulos(ListaArticulosTemp, pCategoria,270);
+		ListaArticulosTemp = null;
+		ListaArticulosTemp = new ArrayList<Articulo>();
+	}
+	
+	/**
+	 * Consulta los arítculos vencidos
+	 */
+	public void consultaArticulosConPrestamoVencido() throws Exception
+	{
+		ventanaPrincipal.getInstance().limpiarPanelConsulta();
+		ventanaPrincipal.getInstance().setcoordenadaY(0);
+		for (int i = 0;i < administradorAplicacion.getInstance().getMiListaPrestamos().size();i++)
+		{
+			for(int j = 0;j < administradorAplicacion.getInstance().getMiListaPrestamos().get(i).size();j++)
+			{
+				Prestamo Temp = administradorAplicacion.getInstance().getMiListaPrestamos().get(i).get(j);
+				ListaPrestamosTemp.add(Temp);
+			}
+			ventanaPrincipal.getInstance().mostrarPrestamosParaCorreo(ListaPrestamosTemp,i);
+			ListaPrestamosTemp = null;
+			ListaPrestamosTemp = new ArrayList<Prestamo>();
+		}
+	}	
+	
+	/**
+	 * Menú para consultas
+	 */
+	public void consulta(int pConsulta,int pCategoria, int pLimit, int pCantPrestamos, Date pDesde, Date pHasta,
+						 String pTitulo,String pAutor,String pEditorial,String pNombrePersona)
+	{
+		if(pConsulta == consultaTop )
+		{
+			consultaTop(pCategoria, pLimit);
+		}
+		if(pConsulta == consultaTodos )
+		{
+			consultaTodosLosArticulos(pCategoria,pTitulo,pAutor,pEditorial,consultaTodos);
+		}
+		if(pConsulta == consultaPersonalizada )
+		{
+			consultaPersonalizada(pCategoria,pCantPrestamos, pDesde, pHasta);
+		}
+		if(pConsulta == consultaPrestados )
+		{
+			consultaPrestados(pCategoria, pNombrePersona,consultaPrestados);
+		}
+		if(pConsulta == consultaNoPrestados )
+		{
+			consultaNoPrestados(pCategoria,consultaNoPrestados);
+		}
+		
+	}
+	
+	/**
+	 * Validación
+	 */
+	public boolean like(String str, String expr) 
+	{
+	    expr = expr.toLowerCase(); // ignoring locale for now
+	    expr = expr.replace(".", "\\."); // "\\" is escaped to "\" (thanks, Alan M)
+	    // ... escape any other potentially problematic characters here
+	    expr = expr.replace("?", ".");
+	    expr = expr.replace("%", ".*");
+	    str = str.toLowerCase();
+	    return str.matches(expr);
+	}	
+	
+
+
+}
